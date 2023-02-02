@@ -38,60 +38,61 @@ nyc_house_data_2015_2019 <- cbind(get_acs(state = "NY", county = NYC_COUNTY_NAME
 
 nyc_house_data_2015_2019_clean <- nyc_house_data_2015_2019 %>% select(-ends_with('M'))
 
+save(nyc_house_data_2015_2019_clean,file = 'NYCHousingEduData.RData')
 
 
 # bay_area_data_test_18 <- get_acs(state = "CA", county = TECH_BAY_AREA_COUNTY_NAMES, geography = "tract", 
                          # variables = VARS, geometry = TRUE, output='wide', year = 2018)
-
-bay_area_data_2009_2019_acs5 <- bay_area_data_2009_2019_acs5 %>% select(-ends_with('M'))
-
-
-get_bay_area_data <- function(V,V1,NAMES){
-  bay_area_cat <- get_acs(state = "CA", county = TECH_BAY_AREA_COUNTY_NAMES, geography = "tract", 
-                        variables = V, geometry = FALSE, output='wide',summary_var = V1)
-  
-  bay_area_cat %>% 
-    select(-ends_with('M')) %>%
-    mutate(Total = select(.,-c(GEOID,NAME,summary_est,summary_moe)) %>% rowSums(na.rm=TRUE)) %>%
-    mutate(across(-c(GEOID,NAME,summary_est,summary_moe), ~.x/bay_area_cat$summary_est)) %>%
-    select(-c(summary_est,summary_moe,Total))
-}
-
-
-V1 <- "C24070_001"
-V <- paste0("C24070_0",str_pad(c(2:14),2,"0",side='left'))
-NAMES <- v19 %>% filter(name %in% V) %>% pull(label) %>% str_replace('Estimate\\!\\!Total\\:\\!\\!','')
-industry = get_bay_area_data(V,V1,NAMES)
-names(industry) = c('GEOID','NAME',paste0('Industry_',str_sub(NAMES,0,5)))
-NMS <- c(VARS,V)
-
-V1 <- "B06001_001"
-V <- paste0("B06001_0",str_pad(c(13,25,37,49),2,"0",side='left'))
-NAMES <- v19 %>% filter(name %in% V) %>% pull(label) %>% str_replace('Estimate\\!\\!Total\\:\\!\\!','')
-birthplace = get_bay_area_data(V,V1,NAMES)
-names(birthplace) = c('GEOID','NAME',trimws(paste0('BirthPlace_',str_sub(NAMES,0,20))))
-NMS <- c(NMS,V)
-
-V1 <- "B25003_001"
-V <- paste0("B25003_0",str_pad(c(2:3),2,"0",side='left'))
-NAMES <- v19 %>% filter(name %in% V) %>% pull(label) %>% str_replace('Estimate\\!\\!Total\\:\\!\\!','')
-housetype = get_bay_area_data(V,V1,NAMES)
-names(housetype) = c('GEOID','NAME',trimws(paste0('HouseType_',str_sub(NAMES,0,20))))
-NMS <- c(NMS,V)
-
-
-V1 <- "B02001_001"
-V <- paste0("B02001_0",str_pad(c(2:8),2,"0",side='left'))
-NAMES <- v19 %>% filter(name %in% V) %>% pull(label) %>% str_replace('Estimate\\!\\!Total\\:\\!\\!','')
-race = get_bay_area_data(V,V1,NAMES)
-names(race) = c('GEOID','NAME',trimws(paste0('Race_',str_sub(NAMES,0,26))))
-NMS <- c(NMS,V)
-
-bay_area_data_2009_2019_acs5_data <- bay_area_data_2009_2019_acs5 %>% left_join(birthplace) %>% left_join(industry) %>% left_join(housetype) %>% left_join(race)
-
-bay_area_data_2009_2019_acs5_data$AREA = st_area(bay_area_data_2009_2019_acs5_data) %>% as.vector()
-
-
-bay_area_data_2009_2019_acs5_data %>% View()
+# 
+# bay_area_data_2009_2019_acs5 <- bay_area_data_2009_2019_acs5 %>% select(-ends_with('M'))
+# 
+# 
+# get_bay_area_data <- function(V,V1,NAMES){
+#   bay_area_cat <- get_acs(state = "CA", county = TECH_BAY_AREA_COUNTY_NAMES, geography = "tract", 
+#                         variables = V, geometry = FALSE, output='wide',summary_var = V1)
+#   
+#   bay_area_cat %>% 
+#     select(-ends_with('M')) %>%
+#     mutate(Total = select(.,-c(GEOID,NAME,summary_est,summary_moe)) %>% rowSums(na.rm=TRUE)) %>%
+#     mutate(across(-c(GEOID,NAME,summary_est,summary_moe), ~.x/bay_area_cat$summary_est)) %>%
+#     select(-c(summary_est,summary_moe,Total))
+# }
+# 
+# 
+# V1 <- "C24070_001"
+# V <- paste0("C24070_0",str_pad(c(2:14),2,"0",side='left'))
+# NAMES <- v19 %>% filter(name %in% V) %>% pull(label) %>% str_replace('Estimate\\!\\!Total\\:\\!\\!','')
+# industry = get_bay_area_data(V,V1,NAMES)
+# names(industry) = c('GEOID','NAME',paste0('Industry_',str_sub(NAMES,0,5)))
+# NMS <- c(VARS,V)
+# 
+# V1 <- "B06001_001"
+# V <- paste0("B06001_0",str_pad(c(13,25,37,49),2,"0",side='left'))
+# NAMES <- v19 %>% filter(name %in% V) %>% pull(label) %>% str_replace('Estimate\\!\\!Total\\:\\!\\!','')
+# birthplace = get_bay_area_data(V,V1,NAMES)
+# names(birthplace) = c('GEOID','NAME',trimws(paste0('BirthPlace_',str_sub(NAMES,0,20))))
+# NMS <- c(NMS,V)
+# 
+# V1 <- "B25003_001"
+# V <- paste0("B25003_0",str_pad(c(2:3),2,"0",side='left'))
+# NAMES <- v19 %>% filter(name %in% V) %>% pull(label) %>% str_replace('Estimate\\!\\!Total\\:\\!\\!','')
+# housetype = get_bay_area_data(V,V1,NAMES)
+# names(housetype) = c('GEOID','NAME',trimws(paste0('HouseType_',str_sub(NAMES,0,20))))
+# NMS <- c(NMS,V)
+# 
+# 
+# V1 <- "B02001_001"
+# V <- paste0("B02001_0",str_pad(c(2:8),2,"0",side='left'))
+# NAMES <- v19 %>% filter(name %in% V) %>% pull(label) %>% str_replace('Estimate\\!\\!Total\\:\\!\\!','')
+# race = get_bay_area_data(V,V1,NAMES)
+# names(race) = c('GEOID','NAME',trimws(paste0('Race_',str_sub(NAMES,0,26))))
+# NMS <- c(NMS,V)
+# 
+# bay_area_data_2009_2019_acs5_data <- bay_area_data_2009_2019_acs5 %>% left_join(birthplace) %>% left_join(industry) %>% left_join(housetype) %>% left_join(race)
+# 
+# bay_area_data_2009_2019_acs5_data$AREA = st_area(bay_area_data_2009_2019_acs5_data) %>% as.vector()
+# 
+# 
+# bay_area_data_2009_2019_acs5_data %>% View()
 
 save(bay_area_data_2009_2019_acs5_data,file = 'CapstoneData.RData')
