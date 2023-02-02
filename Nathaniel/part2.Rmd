@@ -62,3 +62,6 @@ acs %>% ggplot() +
   theme_light()
 ```
 
+4. 
+
+Join by Census Tract, of course.
