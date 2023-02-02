@@ -33,11 +33,32 @@ acs<-read.csv("CensusACSTract.csv") #https://gisdata.mn.gov/dataset/us-mn-state-
 radonTract <- radon %>% filter(!(county == "MINNESOTA"))
 ```
 
-```{r}
+```{r,warning=FALSE,message=FALSE}
 radonTract %>% ggplot() +
-  geom_point(aes(x=TotalHousingUnits,y=AverageAnnualNumber))
+  geom_point(aes(x=TotalHousingUnits,y=AverageAnnualNumber))+
+  labs(x="Total Housing Units",y="Average Annual Radon Tests", title = "Housing Units and Radon Tests by Census Tract") +
+  theme_light()
 ```
 
 #### Census Data
 
 a.  This data is from the US Census Bureau via the Minnesota Government.
+
+b.  Each observation is a census tract, same as first data set.
+
+c.  The data is not from the actual census but the American Community Survey. That is, the data is just an estimate based on surveys.
+
+d.  <https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_census_acs/metadata/metadata.html>
+
+    has a list of the variables included and their definitions. Those of most interest to us are about housing, poverty rates, and measures of health and disability.
+
+e.  
+
+```{r,warning=FALSE,message=FALSE}
+acs %>% ggplot() + 
+  geom_point(aes(x=HUSFD/HUTOTAL,y=POV100RATE))+
+  geom_smooth(aes(x=HUSFD/HUTOTAL,y=POV100RATE), se = FALSE, color="darkred")+
+  labs(x="Percent Single Family Detached Housing",y="Poverty Rate at 100% Poverty Level",title="Detached Housing and Poverty by Census Tract")+
+  theme_light()
+```
+
