@@ -1,0 +1,43 @@
+---
+title: "NathanielPart2"
+output: html_document
+date: "2023-01-31"
+---
+
+ACS = American Community Survey
+
+#### Radon Data
+
+a.  The data was created by the Minnesota Department of Health
+
+b.  Each observation is a Census Tract, a subdivision of a county. The data measures the rate of radon testing and the results of those tests.
+
+c.  The data set only has information on radon testing, there is no accompanying demographic information. The radon concentration value is only an estimate and may be far off in tracts with few tests.
+
+d.  The data has variables for the average yearly properties radon tested, the median radon value, and the percent of properties testing above a certain threshold by county.
+
+e.  
+
+```{r packages}
+library(tidyverse)
+library(readr)
+library(ggplot2)
+```
+
+```{r load data}
+radon<-read.csv("RadonTract.csv") #https://mndatamaps.web.health.state.mn.us/interactive/radontract.html
+acs<-read.csv("CensusACSTract.csv") #https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census-acs
+```
+
+```{r clean data}
+radonTract <- radon %>% filter(!(county == "MINNESOTA"))
+```
+
+```{r}
+radonTract %>% ggplot() +
+  geom_point(aes(x=TotalHousingUnits,y=AverageAnnualNumber))
+```
+
+#### Census Data
+
+a.  This data is from the US Census Bureau via the Minnesota Government.
