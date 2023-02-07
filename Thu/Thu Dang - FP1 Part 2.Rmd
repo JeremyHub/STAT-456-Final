@@ -1,0 +1,107 @@
+---
+title: "NYC House Prices vs. High School Diploma"
+author: "Thu Dang, Nathaniel Reimer, Jeremy Hubinger"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warnings=FALSE)
+```
+
+# FP1 - Part 2
+
+```{r}
+library(dplyr)
+library(lubridate)
+library(stringr)
+library(ggplot2)
+library(sf) #install.packages('sf')
+library(spdep) #install.packages('spdep')
+library(patchwork)
+library(viridis)
+library(MetBrewer)
+library(tidycensus)
+library(tidygeocoder)
+library(dplyr)
+# library(googlesheets4)
+library(readr)
+library(tidyr)
+library(gganimate)
+library(gifski)
+library(transformr)
+```
+
+## Research questions
+
+- What causes increases in housing supply?
+
+- What influences quality of life in low income apartment buildings?
+
+- What is the impact of affordable housing on education outcomes in New York (or any area we can find data in)?
+
+
+```{r}
+# Load nyc data from 2015 to 2019
+load('NYCHousingEduData.RData')
+
+# Load High School Data
+hs_directory <- read_csv('hs_directory.csv')
+```
+
+## Data
+
+The data is collected on each census tract from the American Community Service (ACS) run by the U.S. Census Bureau. These yearly estimates are an inference from data collected over 5-year intervals between 2015 and 2019 (United States Census Bureau 2022). The data provides aggregate summaries of demographic information in census tracts of 5 counties in New York City: New York County, Kings County, Bronx County, Richmond County, Queens County. Each census tract contains roughly 4000 inhabitants that are intended to be demographically and economically homogeneous. 
+
+For the purpose of this analysis, we used data on median estimated income, median population, median age, median household value, median household size, median number of people 25 and above with a high school diploma. We later computed the percentage of people 25 and above with a high school diploma as an education attainment proxy. 
+
+I then visualized the changes in house prices across the 5 counties over the 5 years between 2015 and 2019 and the correlation between the percentage of people 25 and above with a high school diploma vs. house prices. 
+
+
+```{r}
+# Animation
+
+p1 <- nyc_house_data_2015_2019_clean %>%
+  filter(!is.na(HouseValueE)) %>%
+  ggplot() +
+  geom_sf(aes(fill = HouseValueE, group=year), size = 0) +
+  scale_fill_viridis_c() +
+  scale_size(range = c(2, 12)) +
+  labs(title = 'Year: {floor(frame_time)}', subtitle = 'Median House Prices in New York City') +
+  theme_void() +
+  transition_time(year)
+
+animate(p1, duration = 20)
+
+anim_save("nyc_house_price_animation.gif")
+```
+
+
+```{r}
+nyc_house_data_2015_2019_clean %>%
+  separate_wider_delim(NAME, ",", names = c("Census Tract Number", "County Name", "State")) %>%
+  st_as_sf() %>%
+  ggplot(aes(fill=`County Name`), size=0) +
+  geom_sf() +
+  scale_fill_manual(values = met.brewer("Signac", 5)) +
+  # scale_fill_viridis(discrete=TRUE, option="discrete") +
+  scale_size(range = c(2, 12)) +
+  theme_void()
+```
+
+```{r}
+nyc_house_data_2015_2019_clean <- nyc_house_data_2015_2019_clean %>%
+  mutate(HSDipPercent = (NumWithHighSchoolDiplomaE/PopE)*100)
+
+nyc_house_data_2015_2019_clean %>% 
+  filter(year == 2019) %>%
+  drop_na(HSDipPercent,HouseValueE) %>%
+  ggplot(aes(x=HouseValueE, y=HSDipPercent)) + 
+  geom_point() + 
+  geom_smooth() +
+  labs(x="House Value", y="Percentage of people 25 and above with a high school diploma", title="House Values vs. Education Attainment in New York City") +
+  theme_classic()
+```
+  
+## On joining
+
+For census data from ACS, there are coordinate/spatial information which we can join with other spatial dataset, e.g. high schools in New York City (can be scraped here https://opendata.cityofnewyork.us/ for the latest information). Since the `location` column in the hs_directory data contain coordinate information, we can split those coordinates into two separate `longitude`, `latitude` and do spatial joins to join them to the ACS dataset. 
