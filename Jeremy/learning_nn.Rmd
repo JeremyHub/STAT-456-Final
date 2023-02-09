@@ -1,0 +1,77 @@
+```{r}
+library(keras)
+library(dplyr)
+```
+
+```{r}
+houses <- read.csv('housepricedata.csv')
+head(houses)
+test <- houses[0:200,]
+train <- houses[200:nrow(houses),]
+x_train <- train %>%
+  select(-AboveMedianPrice)
+y_train <- train %>%
+  select(AboveMedianPrice)
+x_test <- test %>%
+  select(-AboveMedianPrice)
+y_test <- test %>%
+  select(AboveMedianPrice)
+```
+
+
+```{r}
+# reshape
+x_train <- x_train %>%
+  unlist() %>%
+  array(dim = c(nrow(x_train),10))
+
+x_test <- x_test %>%
+  unlist() %>%
+  array() %>%
+  array(dim = c(nrow(x_test),10))
+```
+
+```{r}
+y_train <- to_categorical(y_train, 2)
+y_test <- to_categorical(y_test, 2)
+```
+
+```{r}
+model <- keras_model_sequential() 
+model %>% 
+  layer_dense(units = 256, activation = 'relu', input_shape = c(10)) %>% 
+  layer_dropout(rate = 0.4) %>% 
+  layer_dense(units = 128, activation = 'relu') %>%
+  layer_dropout(rate = 0.3) %>%
+  layer_dense(units = 64, activation = 'relu') %>%
+  layer_dropout(rate = 0.2) %>%
+  layer_dense(units = 2, activation = 'sigmoid') # sigmoid is the binary outcome activation function (maybe explain activation functions)
+```
+
+```{r}
+summary(model)
+```
+
+```{r}
+model %>% compile(
+  loss = 'binary_crossentropy', # binary because output is binary, can change this if it is categorical
+  optimizer = optimizer_rmsprop(),
+  metrics = c('accuracy')
+)
+```
+
+```{r}
+history <- model %>% fit(
+  x_train, y_train, 
+  epochs = 200, batch_size = 256, 
+  validation_split = 0.2
+)
+```
+
+```{r}
+plot(history)
+```
+
+```{r}
+model %>% evaluate(x_test, y_test)
+```
