@@ -1,0 +1,17 @@
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+data <- read.csv('train.csv')
+head(data)
+```
+
+```{r}
+data %>%
+  ggplot(aes(x=MoSold, y=SalePrice, color = MSZoning))+
+  geom_point()+
+  facet_wrap(~YrSold)
+```
+

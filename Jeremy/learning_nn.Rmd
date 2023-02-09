@@ -4,48 +4,50 @@ library(dplyr)
 ```
 
 ```{r}
-houses <- read.csv('housepricedata.csv')
-head(houses)
-test <- houses[0:200,]
-train <- houses[200:nrow(houses),]
+all_data <- read.csv('train.csv')
+train <- all_data[,sapply(all_data, is.numeric)]
+test <- train[0:500,]
+train <- train[500:nrow(houses),]
 x_train <- train %>%
-  select(-AboveMedianPrice)
+  select(-SalePrice,-Id)
 y_train <- train %>%
-  select(AboveMedianPrice)
+  select(SalePrice)
 x_test <- test %>%
-  select(-AboveMedianPrice)
+  select(-SalePrice,-Id)
 y_test <- test %>%
-  select(AboveMedianPrice)
+  select(SalePrice)
 ```
-
 
 ```{r}
 # reshape
 x_train <- x_train %>%
   unlist() %>%
-  array(dim = c(nrow(x_train),10))
+  array(dim = c(nrow(x_train),36))
 
 x_test <- x_test %>%
   unlist() %>%
-  array() %>%
-  array(dim = c(nrow(x_test),10))
+  array(dim = c(nrow(x_test),36))
 ```
 
 ```{r}
-y_train <- to_categorical(y_train, 2)
-y_test <- to_categorical(y_test, 2)
+y_train <- y_train %>%
+  unlist() %>%
+  array(dim=c(nrow(y_train),1))
+y_test <- y_test %>%
+  unlist() %>%
+  array(dim=c(nrow(y_test),1))
 ```
 
 ```{r}
 model <- keras_model_sequential() 
 model %>% 
-  layer_dense(units = 256, activation = 'relu', input_shape = c(10)) %>% 
+  layer_dense(units = 256, activation = 'relu', input_shape = c(36)) %>% 
   layer_dropout(rate = 0.4) %>% 
   layer_dense(units = 128, activation = 'relu') %>%
   layer_dropout(rate = 0.3) %>%
   layer_dense(units = 64, activation = 'relu') %>%
   layer_dropout(rate = 0.2) %>%
-  layer_dense(units = 2, activation = 'sigmoid') # sigmoid is the binary outcome activation function (maybe explain activation functions)
+  layer_dense(units = 1, activation = 'linear')
 ```
 
 ```{r}
@@ -54,9 +56,9 @@ summary(model)
 
 ```{r}
 model %>% compile(
-  loss = 'binary_crossentropy', # binary because output is binary, can change this if it is categorical
-  optimizer = optimizer_rmsprop(),
-  metrics = c('accuracy')
+  loss = 'mean_squared_error',
+  optimizer = 'adam',
+  metrics = c('mae')
 )
 ```
 
@@ -74,4 +76,5 @@ plot(history)
 
 ```{r}
 model %>% evaluate(x_test, y_test)
+mean(all_data$SalePrice)
 ```
