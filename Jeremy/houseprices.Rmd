@@ -13,7 +13,7 @@ data %>%
   mutate(MoSold = str_pad(MoSold,2,pad="0")) %>%
   mutate(yrdate = paste(YrSold,"/",MoSold)) %>%
   ggplot(aes(x=yrdate, y=SalePrice, color = MSZoning))+
-  geom_point()+
+  geom_point(alpha=0.6)+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
