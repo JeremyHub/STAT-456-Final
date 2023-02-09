@@ -10,8 +10,10 @@ head(data)
 
 ```{r}
 data %>%
-  ggplot(aes(x=MoSold, y=SalePrice, color = MSZoning))+
+  mutate(MoSold = str_pad(MoSold,2,pad="0")) %>%
+  mutate(yrdate = paste(YrSold,"/",MoSold)) %>%
+  ggplot(aes(x=yrdate, y=SalePrice, color = MSZoning))+
   geom_point()+
-  facet_wrap(~YrSold)
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
