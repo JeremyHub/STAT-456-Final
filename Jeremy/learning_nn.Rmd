@@ -37,7 +37,7 @@ y_test <- test %>%
 
 # Reshaping the data
 
-We then have to reshape the data into a 2D array and get rid of the column names. The 2D array's new shape must match the shape of the input layer of the neural network, which is 33 for this dataset. Reshaping the data is a crucial step in preparing the data for neural network training. It ensures that the input data matches the shape expected by the neural network, reduces the number of dimensions, and optimizes memory usage, making the training process more efficient and effective.
+We then have to reshape the data into a 2D array and get rid of the column names. The 2D array's new shape must match the shape of the input layer of the neural network, which is 33 for this dataset. Reshaping the data is a crucial step in preparing the data for neural network training. It ensures that the input data matches the shape expected by the neural network and doesn't have any extra information like column names that the network doesn't know how to parse.
 
 
 ```{r}
