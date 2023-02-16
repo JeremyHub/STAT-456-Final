@@ -6,18 +6,25 @@ library(dplyr)
 
 # Read in the data
 
-First we read in the data and separate it out into training data and test data. The test data that we have reserved will only be used at the very end to evaluate the model.
+- Step 1: Read in the data and separate it out into training data and test data. The test data that we have reserved will only be used at the very end to evaluate the model.
+
+- Step 2: Use a scaling method to standardize the data. There are different standardization methods we can use, i.e. standard scaling, min-max scaling. We'll be using min-max scaling for this dataset.
+
+- Step 3: Split the dataset into training and testing set. 
 
 ```{r}
+# Step 1:
 all_data <- read.csv('train.csv')
-# this line filters out all non-numeric columns, as the model doesn't know how to handle strings
+
+# Step 2: 
 train <- all_data[,sapply(all_data, is.numeric)] %>%
-  sapply(function(x) (x - min(x)) / (max(x) - min(x))) %>%
+  sapply(function(x) (x - min(x)) / (max(x) - min(x))) %>% # applies the function to perform min-max scaling
   as.data.frame() %>%
-  select(-LotFrontage,-MasVnrArea,-GarageYrBlt) %>%
+  select(-LotFrontage,-MasVnrArea,-GarageYrBlt) %>% # filters out all non-numeric columns as the model doesn't know how to handle strings
   na.omit()
-test <- train[0:500,]
-train <- train[500:nrow(train),]
+
+test <- train[0:500,] # the first 500 rows belongs to the test set
+train <- train[500:nrow(train),] # the rest of the dataset belongs to the training set
 ```
 
 # Seperate out the output columns
