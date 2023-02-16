@@ -8,7 +8,7 @@ library(dplyr)
 
 - Step 1: Read in the data and separate it out into training data and test data. The test data that we have reserved will only be used at the very end to evaluate the model.
 
-- Step 2: Use a scaling method to standardize the data. There are different standardization methods we can use, i.e. standard scaling, min-max scaling. We'll be using min-max scaling for this dataset.
+- Step 2: Use a scaling method to standardize the numeric variables. Different numeric variables measure different things, hence they have different scalings. In order to maximize the neural network model, we have to standardize the numerical variables to the same scale. There are different standardization methods we can use, i.e. standard scaling, min-max scaling. We'll be using min-max scaling for this dataset.
 
 - Step 3: Split the dataset into training and testing set. 
 
@@ -33,14 +33,15 @@ For the training and testing data, we separate out the columns that will be used
 
 ```{r}
 x_train <- train %>%
-  select(-SalePrice,-Id)
+  select(-SalePrice,-Id) # keeps all columns except SalePrice and Id since they're not predictors
 y_train <- train %>%
-  select(SalePrice)
+  select(SalePrice) # assigns SalePrice to y as an outcome variable
 x_test <- test %>%
   select(-SalePrice,-Id)
 y_test <- test %>%
   select(SalePrice)
 ```
+
 
 # Reshaping the data
 
@@ -80,6 +81,7 @@ y_test <- y_test %>%
 + `input_shape` is the dimensionality of the input aka the number of columns in the dataset. This argument is required when using this layer as the first layer in a model.
 
 - Step 3: Use `layer_dropout()` to apply dropout to the input. Dropout is a technique used in neural networks to prevent overfitting. This technique drops out some neurons in the training set, which allows other neurons to be more well-rounded aka to pick up patterns to generalize on data they have never seen before. `rate` parameter ranges from 0 to 1, allowing us to specify the fraction of the neurons that we should drop along the way.
+
 
 ```{r}
 model <- keras_model_sequential() 
