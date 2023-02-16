@@ -1,18 +1,19 @@
 ```{r}
 library(keras)
 library(dplyr)
-library(png)
 ```
 
 # Read in the data
 First we read in the data and separate it out into training data and test data. The test data that we have reserved will only be used at the very end to evaluate the model.
 
 ```{r}
-img <- readPNG('bee_imgs/bee_imgs/001_043.png')
-img[1,1,]
 all_data <- read.csv('train.csv')
 # this line filters out all non-numeric columns, as the model doesn't know how to handle strings
-train <- all_data[,sapply(all_data, is.numeric)]
+train <- all_data[,sapply(all_data, is.numeric)] %>%
+  sapply(function(x) (x - min(x)) / (max(x) - min(x))) %>%
+  as.data.frame() %>%
+  select(-LotFrontage,-MasVnrArea,-GarageYrBlt) %>%
+  na.omit()
 test <- train[0:500,]
 train <- train[500:nrow(train),]
 ```
@@ -32,17 +33,17 @@ y_test <- test %>%
 ```
 
 # Reshaping the data
-We then have to reshape the data into a 1d array with 
+We then have to reshape the data into a 1d array and get rid of the column names.
 
 ```{r}
 # reshape
 x_train <- x_train %>%
   unlist() %>%
-  array(dim = c(nrow(x_train),36))
+  array(dim = c(nrow(x_train),33))
 
 x_test <- x_test %>%
   unlist() %>%
-  array(dim = c(nrow(x_test),36))
+  array(dim = c(nrow(x_test),33))
 ```
 
 ```{r}
@@ -57,7 +58,7 @@ y_test <- y_test %>%
 ```{r}
 model <- keras_model_sequential() 
 model %>% 
-  layer_dense(units = 256, activation = 'relu', input_shape = c(36)) %>% 
+  layer_dense(units = 256, activation = 'relu', input_shape = c(33)) %>% 
   layer_dropout(rate = 0.4) %>% 
   layer_dense(units = 128, activation = 'relu') %>%
   layer_dropout(rate = 0.3) %>%
@@ -92,5 +93,5 @@ plot(history)
 
 ```{r}
 model %>% evaluate(x_test, y_test)
-mean(all_data$SalePrice)
+0.041618258 * (max(all_data$SalePrice) - min(all_data$SalePrice)) + min(all_data$SalePrice)
 ```
