@@ -1,9 +1,11 @@
 ```{r}
 library(keras)
+# install_keras() # Uncomment this line and run it once to install the newest version of keras on your computer, then comment out this line again
 library(dplyr)
 ```
 
 # Read in the data
+
 First we read in the data and separate it out into training data and test data. The test data that we have reserved will only be used at the very end to evaluate the model.
 
 ```{r}
@@ -19,6 +21,7 @@ train <- train[500:nrow(train),]
 ```
 
 # Seperate out the output columns
+
 For the training and testing data, we separate out the columns that will be used for output into and X and Y datasets. The X dataset will have all of the columns that are used as predictors, the Y dataset will be used to tell the model what the outcome was from the corresponding row in the X dataset.
 
 ```{r}
@@ -33,6 +36,7 @@ y_test <- test %>%
 ```
 
 # Reshaping the data
+
 We then have to reshape the data into a 1d array and get rid of the column names.
 
 ```{r}
@@ -54,6 +58,20 @@ y_test <- y_test %>%
   unlist() %>%
   array(dim=c(nrow(y_test),1))
 ```
+
+# Build a neural network on the data!
+
+- Step 1: Prepare the linear stack of layers using `keras_model_sequential()`
+
+- Step 2: Use `layer_dense()` to add a densely-connected neural network layer to the framework built previously. 
+
++ `units` allows us to specify the number of neurons you want to use in this model. `units = 256` creates a dense layer with 256 neurons. 
+
++ `activation` allows us to determine whether a neuron should be activated or not. Some common activation functions are ReLU, sigmoid, and tanh. 
+
++ `input_shape` is the dimensionality of the input aka the number of columns in the dataset. This argument is required when using this layer as the first layer in a model.
+
+- Step 3: Use `layer_dropout()` to apply dropout to the input. Dropout is a technique used in neural networks to prevent overfitting. This technique drops out some neurons in the training set, which allows other neurons to be more well-rounded aka to pick up patterns to generalize on data they have never seen before. `rate` parameter ranges from 0 to 1, allowing us to specify the fraction of the neurons that we should drop along the way.
 
 ```{r}
 model <- keras_model_sequential() 
