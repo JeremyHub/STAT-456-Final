@@ -68,7 +68,7 @@ y_test <- y_test %>%
 
 + `units` allows us to specify the number of neurons you want to use in this model. `units = 256` creates a dense layer with 256 neurons. 
 
-+ `activation` allows us to determine whether a neuron should be activated or not. Some common activation functions are ReLU, sigmoid, and tanh. 
++ `activation` allows us to determine whether a neuron should be activated or not (and how much weight to give that activation). Some common activation functions are ReLU, sigmoid, and tanh. 
 
 + `input_shape` is the dimensionality of the input aka the number of columns in the dataset. This argument is required when using this layer as the first layer in a model.
 
