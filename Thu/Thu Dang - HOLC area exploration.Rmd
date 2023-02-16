@@ -1,0 +1,162 @@
+---
+title: "Exploration of HOLC areas in MN"
+author: "Thu Dang"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+library(tidycensus)
+library(tidyverse)
+library(sf)
+library(data.table)
+library(viridis)
+```
+
+```{r}
+options(tigris_use_cache = TRUE)
+census_api_key("19609eb52d1c1d8a6000e796ad5ee4027040605f", overwrite = TRUE, install = TRUE) # to get your own data, you need a Census API key (https://walker-data.com/tidycensus/articles/basic-usage.html)
+
+v19 <-load_variables(2019, "acs5", cache = TRUE)
+# highschool_vars <- v19 %>% filter(str_detect(label, "\\shigh school\\s"))
+# rent_vars <- v19 %>% filter(str_detect(label, "\\srent\\s"))
+# homeownership_vars <- v19 %>% filter(str_detect(label, "\\shomeownership\\s"))
+# white_var <- v19 %>% filter(str_detect(label, "white"))
+# black_var <- v19 %>% filter(str_detect(tolower(label), "black"))
+# race_var <- v19 %>% filter(str_detect(tolower(concept), "^race"))
+```
+
+```{r}
+VARS <- c(Income = "B19013_001", Population = 'B01003_001', Age = "B01002_001", HouseValue = "B25077_001", HouseholdSize = "B25010_001", NumHouse = "B25003_001", NumWithHighSchoolDiploma = "B15003_017", WhitePopulation = "B02001_002", BlackPopulation = "B02001_003", NativePopulation = "B02001_004", AsianPopulation = "B02001_005", TwoOrMoreRaces = "B02001_008") # We can get more variables if we need
+```
+
+```{r}
+# House Value is median value dollars
+
+# Get census data for MN
+
+mn_data_2019 <- get_acs(state = "MN", geography = "tract",
+                         variables = VARS, geometry = TRUE, output='wide', survey = "acs5", year = 2019) 
+
+holc <- st_read('shp_plan_historic_holc_appraisal')
+```
+
+```{r}
+mn_data_2019 <- mn_data_2019 %>%
+  select(- ends_with("M"))
+
+holc <- st_transform(holc, st_crs(mn_data_2019))
+holc1 <- st_make_valid(holc)
+
+holc_mn_data <- st_join(mn_data_2019, holc1)
+```
+
+```{r}
+holc %>%
+  ggplot(aes(fill=HSG_SCALE), size=0) +
+  geom_sf() + 
+  scale_size(range = c(2, 12)) +
+  labs(fill='Area Type') +
+  theme_void()
+
+race_white_per_area <- holc_mn_data %>%
+  group_by(HSG_SCALE) %>%
+  summarise(avg_race_white_pct = mean(WhitePopulationE/PopulationE, na.rm = TRUE))
+```
+
+```{r}
+race_pct_by_area_cat <- holc_mn_data %>%
+  group_by(HSG_SCALE) %>%
+  summarise(`White Population` = mean(WhitePopulationE/PopulationE, na.rm = TRUE),
+            `Black Population` = mean(BlackPopulationE/PopulationE, na.rm = TRUE),
+            `Native Population` = mean(NativePopulationE/PopulationE, na.rm = TRUE),
+            `Asian Population` = mean(AsianPopulationE/PopulationE, na.rm = TRUE),
+            `Mix Race Population` = mean(TwoOrMoreRacesE/PopulationE, na.rm = TRUE))
+
+area_size <- holc_mn_data %>%
+  group_by(HSG_SCALE) %>%
+  summarise(size = sum(Shape_Area)) %>% 
+  arrange(desc(size))
+
+race_pct_by_area_cat_long <- race_pct_by_area_cat %>%
+  pivot_longer(cols=ends_with("Population"), names_to = "pct_type", values_to = "pct")
+```
+
+```{r, fig.show='hide'}
+viz <- race_pct_by_area_cat_long %>%
+  filter(! HSG_SCALE %in% c(NA, 'Uncertain')) %>%
+  ggplot(aes(x=as.factor(HSG_SCALE), y=pct, fill=pct_type)) + 
+  geom_col(position = "dodge") + 
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 4)) +
+  labs(x="Type of Area according to Home Owners Loan Corporation (HOLC)", y = "Proportion of Population", fill="Race Type") +
+  theme_classic()
+
+viz
+```
+
+```{r}
+# max(holc_mn_data$HouseValueE, na.rm = TRUE)
+# min(holc_mn_data$HouseValueE, na.rm = TRUE)
+```
+
+```{r}
+holc_mn_data$house_price_cat <- cut(holc_mn_data$HouseValueE, breaks = c(0, 200000, 400000, 600000, 800000, 1000000), labels = c("0-200K", "200K-400K", "400K-600K", "600K-800K", "800K-1M"))
+```
+
+```{r, message=FALSE}
+total_rowcount_by_area_cat_and_houseprice_cat <- holc_mn_data %>% 
+  st_drop_geometry() %>%
+  group_by(HSG_SCALE, house_price_cat) %>%
+  summarise(count = n()) 
+
+total_rowcount_by_area_cat <- holc_mn_data %>% 
+  st_drop_geometry() %>%
+  group_by(HSG_SCALE) %>%
+  summarise(count = n())
+
+merged_stat_house_price_cat <- merge(total_rowcount_by_area_cat_and_houseprice_cat, total_rowcount_by_area_cat, by="HSG_SCALE", all=TRUE)
+
+merged_stat_house_price_cat <- merged_stat_house_price_cat %>% 
+  drop_na(HSG_SCALE, house_price_cat) %>%
+  mutate(houseprice_cat_ppt = count.x/count.y)
+
+```
+
+
+```{r, fig.show='hide'}
+viz_2 <- merged_stat_house_price_cat %>% 
+  filter(! HSG_SCALE %in% c('Uncertain')) %>%
+  ggplot(aes(x=as.factor(HSG_SCALE), y=houseprice_cat_ppt, fill=house_price_cat)) + 
+  geom_col(position = "dodge") + 
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 4)) +
+  labs(x="Type of Area according to Home Owners Loan Corporation (HOLC)", y = "Proportion", fill="House Price Category") +
+  theme_classic()
+
+viz_2
+```
+
+```{r}
+# install.packages("ggpubr")
+library(ggpubr)
+ggarrange(               # First row with line plot
+  viz_2, 
+  viz,
+  nrow = 2       # Label of the line plot
+  ) 
+```
+
+
+
+
+
+
+
+
+
+
+
+
