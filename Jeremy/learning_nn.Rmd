@@ -33,7 +33,7 @@ y_test <- test %>%
 ```
 
 # Reshaping the data
-We then have to reshape the data into a 1d array and get rid of the column names.
+We then have to reshape the data into a 2d array and get rid of the column names. The 2d array's new shape is such that each row is its own array, and then those are all in one list. The new list as a shape of 
 
 ```{r}
 # reshape
@@ -59,7 +59,7 @@ y_test <- y_test %>%
 model <- keras_model_sequential() 
 model %>% 
   layer_dense(units = 256, activation = 'relu', input_shape = c(33)) %>% 
-  layer_dropout(rate = 0.4) %>% 
+  layer_dropout(rate = 0.4) %>%
   layer_dense(units = 128, activation = 'relu') %>%
   layer_dropout(rate = 0.3) %>%
   layer_dense(units = 64, activation = 'relu') %>%
@@ -82,7 +82,7 @@ model %>% compile(
 ```{r}
 history <- model %>% fit(
   x_train, y_train, 
-  epochs = 200, batch_size = 256, 
+  epochs = 300, batch_size = 256, 
   validation_split = 0.2
 )
 ```
@@ -95,3 +95,4 @@ plot(history)
 results <- model %>% evaluate(x_test, y_test)
 results[2] * (max(all_data$SalePrice) - min(all_data$SalePrice)) + min(all_data$SalePrice)
 ```
+
