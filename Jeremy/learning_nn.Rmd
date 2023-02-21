@@ -147,29 +147,30 @@ cars_data_clean <- cars_data %>%
   separate(Max.Power, c("bhp_power", "rpm_power"), " @ ") %>%
   separate(Max.Torque, c("nm_torque", "rpm_torque"), " @ ") %>%
   mutate_at(c("bhp_power","Engine","rpm_power","nm_torque","rpm_torque"), ~ as.numeric(gsub("(\\s)*[a-zA-Z]*", "",.))) %>%
-  select(-Fuel.Type,-Transmission,-Location,-Color,-Drivetrain,-Model) %>%
-  na.omit()
+  select(-Fuel.Type,-Transmission,-Location,-Color,-Drivetrain,-Model,-Seller.Type,-Owner) %>%
+  na.omit() %>%
+  mutate(Make = as.numeric(as.factor(Make))) # make converted to number so that model can predict class
 head(cars_data_clean)
 ```
 
 # Seperate Training and Testing
 
 ```{r}
-test <- cars_data_clean[
-train <- cars_data_clean[
+test <- cars_data_clean[1:300,]
+train <- cars_data_clean[300:nrow(cars_data_clean),]
 ```
 
 # Seperate Output Column From All Others
 
 ```{r}
 x_train <- train %>%
-  select(
+  select(-Make)
 y_train <- train %>%
-  select(
+  select(Make)
 x_test <- test %>%
-  select(
+  select(-Make)
 y_test <- test %>%
-  select(
+  select(Make)
 ```
 
 # Reshape the Data Into Arrays
@@ -178,18 +179,18 @@ y_test <- test %>%
 # reshape
 x_train <- x_train %>%
   unlist() %>%
-  array(dim = c(
+  array(dim = c(nrow(x_train),15))
 
 x_test <- x_test %>%
   unlist() %>%
-  array(dim = c(
+  array(dim = c(nrow(x_train),15))
 
 y_train <- y_train %>%
   unlist() %>%
-  array(dim=c(
+  array(dim=c(nrow(x_train),1))
 y_test <- y_test %>%
   unlist() %>%
-  array(dim=c(
+  array(dim=c(nrow(x_train),1))
 ```
 
 # Buld Your Model
@@ -197,15 +198,15 @@ y_test <- y_test %>%
 ```{r}
 model <- keras_model_sequential()
 model %>% 
-  layer_dense(units = 256, activation = 'relu', input_shape = c(...)) %>% 
-  ...
-  layer_dense(units = 10, activation = 'softmax') # keep this as your final layer
+  layer_dense(units = 256, activation = 'relu', input_shape = c(15)) %>% 
+  layer_dropout(rate = 0.4) %>%
+  layer_dense(units = 1, activation = 'softmax')
 ```
 
 # Make Sure it Looks Correct
 
 ```{r}
-
+summary(model)
 ```
 
 # Complie Your Model
@@ -223,6 +224,10 @@ model %>% compile(
 
 ```{r}
 history <- model %>% fit(
+  x_train, y_train,
+  epochs = 300, batch_size = 256, 
+  validation_split = 0.2
+)
 ```
 
 # Look at the Results
@@ -231,3 +236,8 @@ history <- model %>% fit(
 model %>% evaluate(x_test, y_test)
 ```
 
+# How Good is That Accuracy? (hint: there are 32 unique makes in the dataset)
+
+```{r}
+
+```
