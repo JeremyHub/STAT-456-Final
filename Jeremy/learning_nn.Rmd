@@ -20,7 +20,7 @@ all_data <- read.csv('https://raw.githubusercontent.com/JeremyHub/STAT-456-Final
 train <- all_data[,sapply(all_data, is.numeric)] %>%
   sapply(function(x) (x - min(x)) / (max(x) - min(x))) %>% # applies the function to perform min-max scaling
   as.data.frame() %>%
-  select(-LotFrontage,-MasVnrArea,-GarageYrBlt) %>% # filters out all non-numeric columns as the model doesn't know how to handle strings
+  select(-LotFrontage,-MasVnrArea,-GarageYrBlt) %>% # filters out all non-numeric columns as the model doesn't know how to handle strings (if you wanted it to handle categorical strings, you could map each string to a number and let the model figure out that it is categorical)
   na.omit()
 
 test <- train[0:500,] # the first 500 rows belongs to the test set
@@ -137,7 +137,7 @@ results[2] * (max(all_data$SalePrice) - min(all_data$SalePrice)) + min(all_data$
 
 ## Exercise
 
-Now try predicting a categorical variable from the following dataset. (make, model, etc.)
+Now try predicting the make of a car.
 
 ```{r}
 cars_data <- read.csv("https://raw.githubusercontent.com/JeremyHub/STAT-456-Final/main/Jeremy/car%20details%20v4.csv")
@@ -146,7 +146,88 @@ cars_data <- read.csv("https://raw.githubusercontent.com/JeremyHub/STAT-456-Fina
 cars_data_clean <- cars_data %>%
   separate(Max.Power, c("bhp_power", "rpm_power"), " @ ") %>%
   separate(Max.Torque, c("nm_torque", "rpm_torque"), " @ ") %>%
-  mutate(bhp_power = gsub("(\\s)*[a-zA-Z]*", "",bhp_power))
+  mutate_at(c("bhp_power","Engine","rpm_power","nm_torque","rpm_torque"), ~ as.numeric(gsub("(\\s)*[a-zA-Z]*", "",.))) %>%
+  select(-Fuel.Type,-Transmission,-Location,-Color,-Drivetrain,-Model) %>%
+  na.omit()
 head(cars_data_clean)
+```
+
+# Seperate Training and Testing
+
+```{r}
+test <- cars_data_clean[
+train <- cars_data_clean[
+```
+
+# Seperate Output Column From All Others
+
+```{r}
+x_train <- train %>%
+  select(
+y_train <- train %>%
+  select(
+x_test <- test %>%
+  select(
+y_test <- test %>%
+  select(
+```
+
+# Reshape the Data Into Arrays
+
+```{r}
+# reshape
+x_train <- x_train %>%
+  unlist() %>%
+  array(dim = c(
+
+x_test <- x_test %>%
+  unlist() %>%
+  array(dim = c(
+
+y_train <- y_train %>%
+  unlist() %>%
+  array(dim=c(
+y_test <- y_test %>%
+  unlist() %>%
+  array(dim=c(
+```
+
+# Buld Your Model
+
+```{r}
+model <- keras_model_sequential()
+model %>% 
+  layer_dense(units = 256, activation = 'relu', input_shape = c(...)) %>% 
+  ...
+  layer_dense(units = 10, activation = 'softmax') # keep this as your final layer
+```
+
+# Make Sure it Looks Correct
+
+```{r}
+
+```
+
+# Complie Your Model
+
+```{r}
+# code below is an example of model parameters for a categorical output
+model %>% compile(
+  loss = 'categorical_crossentropy',
+  optimizer = optimizer_rmsprop(),
+  metrics = c('accuracy')
+)
+```
+
+# Train Your Model
+
+```{r}
+history <- model %>% fit(
+```
+
+# Look at the Results
+
+```{r}
+model %>% evaluate(x_test, y_test)
 ```
 
