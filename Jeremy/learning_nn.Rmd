@@ -135,3 +135,6 @@ plot(history)
 results <- model %>% evaluate(x_test, y_test)
 results[2] * (max(all_data$SalePrice) - min(all_data$SalePrice)) + min(all_data$SalePrice)
 ```
+
+
+
