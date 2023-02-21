@@ -95,9 +95,15 @@ model %>%
   layer_dense(units = 1, activation = 'linear')
 ```
 
+# Check the shape of our model
+
 ```{r}
 summary(model)
 ```
+
+# Compile the model
+
+
 
 ```{r}
 model %>% compile(
@@ -107,6 +113,8 @@ model %>% compile(
 )
 ```
 
+# Fit the Model & Define Training Length
+
 ```{r}
 history <- model %>% fit(
   x_train, y_train, 
@@ -115,9 +123,13 @@ history <- model %>% fit(
 )
 ```
 
+# Plot the Model History
+
 ```{r}
 plot(history)
 ```
+
+# Look at Results
 
 ```{r}
 results <- model %>% evaluate(x_test, y_test)
