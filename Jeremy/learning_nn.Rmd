@@ -156,21 +156,21 @@ head(cars_data_clean)
 # Seperate Training and Testing
 
 ```{r}
-test <- cars_data_clean[1:300,]
-train <- cars_data_clean[300:nrow(cars_data_clean),]
+test <- cars_data_clean[
+train <- cars_data_clean[
 ```
 
 # Seperate Output Column From All Others
 
 ```{r}
 x_train <- train %>%
-  select(-Make)
+  select(
 y_train <- train %>%
-  select(Make)
+  select(
 x_test <- test %>%
-  select(-Make)
+  select(
 y_test <- test %>%
-  select(Make)
+  select(
 ```
 
 # Reshape the Data Into Arrays
@@ -179,34 +179,34 @@ y_test <- test %>%
 # reshape
 x_train <- x_train %>%
   unlist() %>%
-  array(dim = c(nrow(x_train),15))
+  array(dim = c(
 
 x_test <- x_test %>%
   unlist() %>%
-  array(dim = c(nrow(x_train),15))
+  array(dim = c(
 
 y_train <- y_train %>%
   unlist() %>%
-  array(dim=c(nrow(x_train),1))
+  array(dim=c(
 y_test <- y_test %>%
   unlist() %>%
-  array(dim=c(nrow(x_train),1))
+  array(dim=c(
 ```
 
-# Buld Your Model
+# Buld Your Model (hint: input shape is number of predictor columns)
 
 ```{r}
 model <- keras_model_sequential()
 model %>% 
-  layer_dense(units = 256, activation = 'relu', input_shape = c(15)) %>% 
-  layer_dropout(rate = 0.4) %>%
+  layer_dense(units = 256, activation = 'relu', input_shape = c(...)) %>% 
+  ...
   layer_dense(units = 1, activation = 'softmax')
 ```
 
 # Make Sure it Looks Correct
 
 ```{r}
-summary(model)
+
 ```
 
 # Complie Your Model
@@ -224,16 +224,12 @@ model %>% compile(
 
 ```{r}
 history <- model %>% fit(
-  x_train, y_train,
-  epochs = 300, batch_size = 256, 
-  validation_split = 0.2
-)
 ```
 
 # Look at the Results
 
 ```{r}
-model %>% evaluate(x_test, y_test)
+model %>% evaluate(
 ```
 
 # How Good is That Accuracy? (hint: there are 32 unique makes in the dataset)
