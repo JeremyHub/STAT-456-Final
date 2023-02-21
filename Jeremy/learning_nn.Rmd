@@ -146,7 +146,7 @@ cars_data <- read.csv("https://raw.githubusercontent.com/JeremyHub/STAT-456-Fina
 cars_data_clean <- cars_data %>%
   separate(Max.Power, c("bhp_power", "rpm_power"), " @ ") %>%
   separate(Max.Torque, c("nm_torque", "rpm_torque"), " @ ") %>%
-  mutate(across(11:15, gsub("n", "")))
+  mutate(bhp_power = gsub("(\\s)*[a-zA-Z]*", "",bhp_power))
 head(cars_data_clean)
 ```
 
