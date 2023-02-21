@@ -14,7 +14,7 @@ library(dplyr)
 
 ```{r}
 # Step 1:
-all_data <- read.csv('train.csv')
+all_data <- read.csv('https://raw.githubusercontent.com/JeremyHub/STAT-456-Final/main/Jeremy/train.csv')
 
 # Step 2: 
 train <- all_data[,sapply(all_data, is.numeric)] %>%
@@ -103,8 +103,6 @@ summary(model)
 
 # Compile the model
 
-
-
 ```{r}
 model %>% compile(
   loss = 'mean_squared_error',
@@ -137,4 +135,18 @@ results[2] * (max(all_data$SalePrice) - min(all_data$SalePrice)) + min(all_data$
 ```
 
 
+## Exercise
+
+Now try predicting a categorical variable from the following dataset. (make, model, etc.)
+
+```{r}
+cars_data <- read.csv("https://raw.githubusercontent.com/JeremyHub/STAT-456-Final/main/Jeremy/car%20details%20v4.csv")
+
+
+cars_data_clean <- cars_data %>%
+  separate(Max.Power, c("bhp_power", "rpm_power"), " @ ") %>%
+  separate(Max.Torque, c("nm_torque", "rpm_torque"), " @ ") %>%
+  mutate(across(11:15, gsub("n", "")))
+head(cars_data_clean)
+```
 
