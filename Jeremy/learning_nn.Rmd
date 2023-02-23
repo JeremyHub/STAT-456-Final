@@ -76,7 +76,7 @@ y_test <- y_test %>%
 
 + `units` allows us to specify the number of neurons you want to use in this model. `units = 256` creates a dense layer with 256 neurons. 
 
-+ `activation` allows us to determine whether a neuron should be activated or not (and how much weight to give that activation). Some common activation functions are ReLU, sigmoid, and tanh. 
++ `activation` allows us to determine whether a neuron should be activated or not (and how much weight to give that activation). Some common activation functions are ReLU, sigmoid, and tanh. If you want to read more on ReLU activation function, read here: https://machinelearningmastery.com/rectified-linear-activation-function-for-deep-learning-neural-networks/#:~:text=The%20rectified%20linear%20activation%20function,otherwise%2C%20it%20will%20output%20zero.
 
 + `input_shape` is the dimensionality of the input aka the number of columns in the dataset. This argument is required when using this layer as the first layer in a model.
 
@@ -97,11 +97,28 @@ model %>%
 
 # Check the shape of our model
 
+We can see a brief summary of the shape and the parameters belonging to each of the layer in our neural network model. 
+
+- Output shape is the information about the shape of the layer as determined above when we build out the model. 
+
+- The “Param #” column shows you the number of parameters that are trained for each layer. The trainable parameters refer to the weights and biases of the connections between neurons in the network. During the training process, these parameters are adjusted in response to the input data and the desired output, in order to minimize the difference between the predicted output and the actual output.
+
+- For the fully connected layers, the number of trainable parameters can be computed by (n + 1) × m, where n is the number of input units and m is the number of output units. The +1 term in the equation takes into account the bias terms. Read here for more detailed explanation on how to calculate the number of trainable parameters and a relevant exercise: https://aldozaimi.wordpress.com/2020/02/13/determine-the-number-of-trainable-parameters-in-a-neural-network/#:~:text=There%20is%20a%20simple%20rule,the%20number%20of%20output%20units.
+
 ```{r}
 summary(model)
 ```
 
 # Compile the model
+
+Model compilation is the last step of creating the model, i.e. it gets the model ready to be trained on data. There are 3 components to specify: loss, optimizer, and metrics
+
+- Loss function: The loss function measures how well the model is performing on the training data. It calculates the difference between the predicted output and the actual output, and produces a single scalar value that represents the error or loss. The goal of training the network is to minimize this loss function, by adjusting the weights and biases of the network.
+
+- Optimizer: The optimizer is a key component responsible for updating the weights and biases of the network by leveraging the gradients of the loss function. Different optimizers are available, each with unique benefits and drawbacks, such as stochastic gradient descent (SGD), Adam, and RMSprop.
+
+- Metrics: The metrics are used to evaluate the performance of the model during training and testing. These metrics can include accuracy, precision, recall, F1 score, and others. They are useful for monitoring the progress of the model and for comparing different models. In this example, we use MAE, which stands for mean absolute error, as our evaluation metrics. 
+
 
 ```{r}
 model %>% compile(
@@ -113,6 +130,10 @@ model %>% compile(
 
 # Fit the Model & Define Training Length
 
+At this step, we fit the training data to the model and evaluate the model's quality. `Epoch` refers to every time the model runs through the entire training dataset. Since we specify `epochs` to be 300 here, the model will run through the entire training dataset 300 times. The more the error gets reduced, the better the neural network model gets. 
+
+The word `val` in `val_loss` and `val_mae` stands for validation, and these variables represent the value of the cost function on validation data sets. The validation set is determined in the argument `validation_split` in the `fit()` function. Here, we specify `validation_split = 0.2`, meaning that in each epoch, the model gets trained on 80% of the training set and then gets validated on the remaining 20% of the training set. Monitoring model's performance on both training and validation sets helps avoid overfitting. 
+
 ```{r}
 history <- model %>% fit(
   x_train, y_train, 
@@ -123,21 +144,26 @@ history <- model %>% fit(
 
 # Plot the Model History
 
+After that, we plot the loss and mae values for both the training and validation sets. This is the same as the graph on your right-hand side when the model gets fitted. 
+
 ```{r}
 plot(history)
 ```
 
 # Look at Results
 
+Overall, the standardized `mae` is 0.0338 for our model. In order to make sense of this number, we have to convert it to the scale of our outcome variable, which is house price. Since we use `min-max scaling` for this dataset, the second line of code in the code block below helps us convert the `mae` to the same scale with the outcome variable. 
+
 ```{r}
 results <- model %>% evaluate(x_test, y_test)
 results[2] * (max(all_data$SalePrice) - min(all_data$SalePrice)) + min(all_data$SalePrice)
 ```
 
+Since the `mae` is 59238.68, this means that the average absolute difference between the predicted house prices and the actual house prices in the test dataset is approximately $60K. 
 
 ## Exercise
 
-Now try predicting the make of a car.
+Now it's your turn to try predicting the make of a car using Neural Networks!
 
 ```{r}
 cars_data <- read.csv("https://raw.githubusercontent.com/JeremyHub/STAT-456-Final/main/Jeremy/car%20details%20v4.csv")
