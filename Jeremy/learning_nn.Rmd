@@ -101,7 +101,7 @@ We can see a brief summary of the shape and the parameters belonging to each of 
 
 - Output shape is the information about the shape of the layer as determined above when we build out the model. 
 
-- The “Param #” column shows you the number of parameters that are trained for each layer. The trainable parameters refer to the weights and biases of the connections between neurons in the network (ie. 1 parameter means 1 connection between 2 nuerons). During the training process, these parameters are adjusted in response to the input data and the desired output, in order to minimize the difference between the predicted output and the actual output.
+- The “Param #” column shows you the number of parameters that are trained for each layer. The trainable parameters refer to the weights and biases of the connections between neurons in the network (ie. 1 parameter means 1 connection between 2 neurons). During the training process, these parameters are adjusted in response to the input data and the desired output, in order to minimize the difference between the predicted output and the actual output.
 
 - For the fully connected layers, the number of trainable parameters can be computed by (n + 1) × m, where n is the number of input units and m is the number of output units. The +1 term in the equation takes into account the bias terms. Read here for more detailed explanation on how to calculate the number of trainable parameters and a relevant exercise: https://aldozaimi.wordpress.com/2020/02/13/determine-the-number-of-trainable-parameters-in-a-neural-network/#:~:text=There%20is%20a%20simple%20rule,the%20number%20of%20output%20units.
 
