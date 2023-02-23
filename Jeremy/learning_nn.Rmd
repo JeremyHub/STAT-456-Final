@@ -45,7 +45,7 @@ y_test <- test %>%
 
 # Reshaping the data
 
-We then have to reshape the data into a 2D array and get rid of the column names. The 2D array's new shape must match the shape of the input layer of the neural network, which is 33 for this dataset. Reshaping the data is a crucial step in preparing the data for neural network training. It ensures that the input data matches the shape expected by the neural network and doesn't have any extra information like column names that the network doesn't know how to parse.
+We then have to reshape the data into a 2D array and get rid of the column names. The 2D array's new shape must match the shape of the input layer of the neural network, which is 33 for this dataset (the number of columns to be used as predictors). Reshaping the data is a crucial step in preparing the data for neural network training. It ensures that the input data matches the shape expected by the neural network and doesn't have any extra information like column names that the network doesn't know how to parse.
 
 
 ```{r}
@@ -78,7 +78,7 @@ y_test <- y_test %>%
 
 + `activation` allows us to determine whether a neuron should be activated or not (and how much weight to give that activation). Some common activation functions are ReLU, sigmoid, and tanh. If you want to read more on ReLU activation function, read here: https://machinelearningmastery.com/rectified-linear-activation-function-for-deep-learning-neural-networks/#:~:text=The%20rectified%20linear%20activation%20function,otherwise%2C%20it%20will%20output%20zero.
 
-+ `input_shape` is the dimensionality of the input aka the number of columns in the dataset. This argument is required when using this layer as the first layer in a model.
++ `input_shape` is the dimensionality of the input aka the number of predictor columns in the dataset. This argument is required when using this layer as the first layer in a model.
 
 - Step 3: Use `layer_dropout()` to apply dropout to the input. Dropout is a technique used in neural networks to prevent overfitting. This technique drops out some neurons in the training set, which allows other neurons to be more well-rounded aka to pick up patterns to generalize on data they have never seen before. `rate` parameter ranges from 0 to 1, allowing us to specify the fraction of the neurons that we should drop along the way.
 
@@ -101,7 +101,7 @@ We can see a brief summary of the shape and the parameters belonging to each of 
 
 - Output shape is the information about the shape of the layer as determined above when we build out the model. 
 
-- The “Param #” column shows you the number of parameters that are trained for each layer. The trainable parameters refer to the weights and biases of the connections between neurons in the network. During the training process, these parameters are adjusted in response to the input data and the desired output, in order to minimize the difference between the predicted output and the actual output.
+- The “Param #” column shows you the number of parameters that are trained for each layer. The trainable parameters refer to the weights and biases of the connections between neurons in the network (ie. 1 parameter means 1 connection between 2 nuerons). During the training process, these parameters are adjusted in response to the input data and the desired output, in order to minimize the difference between the predicted output and the actual output.
 
 - For the fully connected layers, the number of trainable parameters can be computed by (n + 1) × m, where n is the number of input units and m is the number of output units. The +1 term in the equation takes into account the bias terms. Read here for more detailed explanation on how to calculate the number of trainable parameters and a relevant exercise: https://aldozaimi.wordpress.com/2020/02/13/determine-the-number-of-trainable-parameters-in-a-neural-network/#:~:text=There%20is%20a%20simple%20rule,the%20number%20of%20output%20units.
 
@@ -152,14 +152,14 @@ plot(history)
 
 # Look at Results
 
-Overall, the standardized `mae` is 0.0338 for our model. In order to make sense of this number, we have to convert it to the scale of our outcome variable, which is house price. Since we use `min-max scaling` for this dataset, the second line of code in the code block below helps us convert the `mae` to the same scale with the outcome variable. 
+Overall, the standardized `mae` is ~0.03 (your results may vary becuase there is a lot of randomness in this process) for our model. In order to make sense of this number, we have to convert it to the scale of our outcome variable, which is house price. Since we use `min-max scaling` for this dataset, the second line of code in the code block below helps us convert the `mae` to the same scale with the outcome variable. 
 
 ```{r}
 results <- model %>% evaluate(x_test, y_test)
 results[2] * (max(all_data$SalePrice) - min(all_data$SalePrice)) + min(all_data$SalePrice)
 ```
 
-Since the `mae` is 59238.68, this means that the average absolute difference between the predicted house prices and the actual house prices in the test dataset is approximately $60K. 
+Since the `mae` is ~60k (again, your results may vary quite widely), this means that the average absolute difference between the predicted house prices and the actual house prices in the test dataset is approximately $60K. 
 
 ## Exercise
 
@@ -168,7 +168,7 @@ Now it's your turn to try predicting the make of a car using Neural Networks!
 ```{r}
 cars_data <- read.csv("https://raw.githubusercontent.com/JeremyHub/STAT-456-Final/main/Jeremy/car%20details%20v4.csv")
 
-
+# some data cleaning done for you, this does not need adjustment
 cars_data_clean <- cars_data %>%
   separate(Max.Power, c("bhp_power", "rpm_power"), " @ ") %>%
   separate(Max.Torque, c("nm_torque", "rpm_torque"), " @ ") %>%
@@ -226,10 +226,10 @@ model <- keras_model_sequential()
 model %>% 
   layer_dense(units = 256, activation = 'relu', input_shape = c(...)) %>% 
   ...
-  layer_dense(units = 1, activation = 'softmax')
+  layer_dense(units = 1, activation = 'softmax') # keep this line. units = 1 is for the output and softmax is an activation function good for classification models.
 ```
 
-# Make Sure it Looks Correct
+# Make Sure The Modle Parameters Look Correct
 
 ```{r}
 
@@ -238,7 +238,7 @@ model %>%
 # Complie Your Model
 
 ```{r}
-# code below is an example of model parameters for a categorical output
+# code below is an example of model parameters for a categorical output (this does not need changing)
 model %>% compile(
   loss = 'categorical_crossentropy',
   optimizer = optimizer_rmsprop(),
