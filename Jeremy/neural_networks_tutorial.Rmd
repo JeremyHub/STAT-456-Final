@@ -1,6 +1,5 @@
 ```{r}
 library(keras)
-# install_keras() # Uncomment this line and run it once to install the newest version of keras on your computer, then comment out this line again
 library(dplyr)
 library(tidyr)
 ```
@@ -85,6 +84,7 @@ y_test <- y_test %>%
 
 
 ```{r}
+# install_keras() # Uncomment this line and run it once to install the newest version of keras on your computer, then comment out this line again
 model <- keras_model_sequential() 
 model %>% 
   layer_dense(units = 256, activation = 'relu', input_shape = c(33)) %>% 
@@ -133,7 +133,7 @@ model %>% compile(
 
 At this step, we fit the training data to the model and evaluate the model's quality. `Epoch` refers to every time the model runs through the entire training dataset. Since we specify `epochs` to be 300 here, the model will run through the entire training dataset 300 times. The more the error gets reduced, the better the neural network model gets. 
 
-The word `val` in `val_loss` and `val_mae` stands for validation, and these variables represent the value of the cost function on validation data sets. The validation set is determined in the argument `validation_split` in the `fit()` function. Here, we specify `validation_split = 0.2`, meaning that in each epoch, the model gets trained on 80% of the training set and then gets validated on the remaining 20% of the training set. Monitoring model's performance on both training and validation sets helps avoid overfitting. 
+The word `val` in `val_loss` and `val_mae` stands for validation, and these variables represent the value of the cost function on validation data sets. The validation set is determined in the argument `validation_split` in the `fit()` function. Here, we specify `validation_split = 0.2`, meaning that in each epoch, the model gets trained on 80% of the training set and then gets validated on the remaining 20% of the training set. If you're familiar with cross-validation from 253, this is essentially it :) Monitoring model's performance on both training and validation sets helps avoid overfitting. 
 
 ```{r}
 history <- model %>% fit(
@@ -153,7 +153,7 @@ plot(history)
 
 # Look at Results
 
-Overall, the standardized `mae` is ~0.03 (your results may vary becuase there is a lot of randomness in this process) for our model. In order to make sense of this number, we have to convert it to the scale of our outcome variable, which is house price. Since we use `min-max scaling` for this dataset, the second line of code in the code block below helps us convert the `mae` to the same scale with the outcome variable. 
+Overall, the standardized `mae` is ~0.03 (your results may vary because there is a lot of randomness in this process) for our model. In order to make sense of this number, we have to convert it to the scale of our outcome variable, which is house price. Since we use `min-max scaling` for this dataset, the second line of code in the code block below helps us convert the `mae` to the same scale with the outcome variable. 
 
 ```{r}
 results <- model %>% evaluate(x_test, y_test)
