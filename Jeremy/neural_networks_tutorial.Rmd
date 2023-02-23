@@ -230,13 +230,13 @@ model %>%
   layer_dense(units = 1, activation = 'softmax') # keep this line. units = 1 is for the output and softmax is an activation function good for classification models.
 ```
 
-# Make Sure The Modle Parameters Look Correct
+# Make Sure The Model Parameters Look Correct
 
 ```{r}
 
 ```
 
-# Complie Your Model
+# Compile Your Model
 
 ```{r}
 # code below is an example of model parameters for a categorical output (this does not need changing)
