@@ -14,7 +14,7 @@ library(tidyr)
 
 ```{r}
 # Step 1:
-all_data <- read.csv('https://raw.githubusercontent.com/JeremyHub/STAT-456-Final/main/Jeremy/train.csv')
+all_data <- read.csv('https://raw.githubusercontent.com/JeremyHub/STAT-456-Final/main/Jeremy/train.csv') # characteristics of homes sold in an Iowa town between 2006 and 2010. Compiled specifically for use in data science education.
 
 # Step 2: 
 train <- all_data[,sapply(all_data, is.numeric)] %>%
@@ -167,7 +167,7 @@ Since the `mae` is ~60k (again, your results may vary quite widely), this means 
 Now it's your turn to try predicting the make of a car using Neural Networks!
 
 ```{r}
-cars_data <- read.csv("https://raw.githubusercontent.com/JeremyHub/STAT-456-Final/main/Jeremy/car%20details%20v4.csv")
+cars_data <- read.csv("https://raw.githubusercontent.com/JeremyHub/STAT-456-Final/main/Jeremy/car%20details%20v4.csv") # data on used car characteristics from Kaggle. Creator used web scraping to compile data. 
 
 # some data cleaning done for you, this does not need adjustment
 cars_data_clean <- cars_data %>%
